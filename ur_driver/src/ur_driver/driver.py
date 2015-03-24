@@ -900,7 +900,7 @@ def main():
     #update = URDriverConfig(prevent_programming)
     #reconfigure_srv.update_configuration(update)
     
-    prefix = rospy.get_param("~prefix", "")
+    prefix = rospy.get_param("~prefix", "arm_")
     print "Setting prefix to %s" % prefix
     global joint_names
     joint_names = [prefix + name for name in JOINT_NAMES]
