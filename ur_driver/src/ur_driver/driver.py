@@ -22,7 +22,7 @@ from ur_driver.cfg import URDriverConfig
 from ur_driver.deserialize import RobotState, RobotMode
 from ur_driver.deserializeRT import RobotStateRT
 
-from ur_msgs.srv import SetPayload, SetIO
+from ur_msgs.srv import SetPayload, SetIO, SetTeachIn
 from ur_msgs.msg import *
 
 # renaming classes
@@ -628,6 +628,8 @@ class URServiceProvider(object):
     def __init__(self, robot):
         self.robot = robot
         rospy.Service('ur_driver/setPayload', SetPayload, self.setPayload)
+        # (dlw test)
+	rospy.Service('ur_driver/setTeachIn', SetTeachIn, self.setTeachIn)
 
     def set_robot(self, robot):
         self.robot = robot
@@ -641,6 +643,14 @@ class URServiceProvider(object):
             self.robot.send_payload(req.payload)
         else:
             return False
+        return True
+
+    # (dlw test)
+    def setTeachIn(self, req):
+	rospy.loginfo("TeachIn set to " + str(req.active))
+        global teaching
+        teaching = req.active
+        # return required?
         return True
 
 class URTrajectoryFollower(object):
@@ -893,6 +903,10 @@ def main():
     if rospy.get_param("use_sim_time", False):
         rospy.logwarn("use_sim_time is set!!!")
     
+    # init teaching, default False
+    global teaching
+    teaching = False
+
     global prevent_programming
     prevent_programming = rospy.get_param("prevent_programming", False)
     reconfigure_srv = Server(URDriverConfig, reconfigure_callback)
@@ -965,6 +979,10 @@ def main():
     action_server = None
     try:
         while not rospy.is_shutdown():
+            # check for teaching (dlw test)
+            if teaching:
+                time.sleep(0.2)
+                continue
             # Checks for disconnect
             if getConnectedRobot(wait=False):
                 time.sleep(0.2)

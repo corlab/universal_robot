@@ -22,6 +22,7 @@ find_package(catkin REQUIRED COMPONENTS message_generation std_msgs)
    FILES
    SetPayload.srv
    SetIO.srv
+   SetTeachIn.srv
  )
 
 
